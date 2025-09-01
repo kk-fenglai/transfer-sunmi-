@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunmi API Sub Account List Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-links {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group .help-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .result-details {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .sub-accounts-list {
+            margin-top: 20px;
+        }
+
+        .sub-account-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sub-account-info {
+            flex: 1;
+        }
+
+        .sub-account-id {
+            font-weight: 600;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .sub-account-name {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .api-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .api-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .api-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .api-info li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .api-info li:last-child {
+            border-bottom: none;
+        }
+
+        .api-info strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Sub Account List</h1>
+            <p>Retrieve and manage your sub-account entities | Official API Specifications</p>
+            <div class="nav-links">
+                <a href="/">Back to Main</a>
+
+                <a href="/unified_transfer">Device Transfer</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <form id="subAccountListForm">
+                <div class="form-group">
+                    <label for="app_id">App ID *</label>
+                    <input type="text" id="app_id" name="app_id" required 
+                           placeholder="Enter your App ID">
+                    <div class="help-text">Your Sunmi application identifier</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="app_key">App Key *</label>
+                    <input type="password" id="app_key" name="app_key" required 
+                           placeholder="Enter your App Key">
+                    <div class="help-text">Your Sunmi application secret key</div>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    Get Sub Account List
+                </button>
+            </form>
+
+            <div id="loading" class="loading" style="display: none;">
+                Retrieving sub account list...
+            </div>
+
+            <div id="result" class="result"></div>
+
+            <div class="api-info">
+                <h3>📚 API Documentation Information</h3>
+                <ul>
+                    <li><strong>Endpoint:</strong> POST /v2/mdm/open/open/deviceCenter/partner/getSubAccountList</li>
+                    <li><strong>Authentication:</strong> HMAC-SHA256 signature required</li>
+                    <li><strong>Payload:</strong> Empty JSON object {}</li>
+                    <li><strong>Response:</strong> List of sub-account entities with entity_id and entity_name</li>
+                    <li><strong>Success Code:</strong> 1</li>
+                    <li><strong>Error Codes:</strong> 13010001 (Server Error), 13010002 (Parameter Error), 30001 (Cannot get ability)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('subAccountListForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            
+            // Get form data
+            const appId = document.getElementById('app_id').value.trim();
+            const appKey = document.getElementById('app_key').value.trim();
+            
+            // Validate required fields
+            if (!appId || !appKey) {
+                showResult('error', 'Please fill in all required fields');
+                return;
+            }
+            
+            // Show loading
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/get_sub_account_list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        app_id: appId,
+                        app_key: appKey
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccessResult(data);
+                } else {
+                    showErrorResult(data);
+                }
+            } catch (error) {
+                showResult('error', `Network error: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+        
+        function showSuccessResult(data) {
+            const resultDiv = document.getElementById('result');
+            const subAccounts = data.sub_accounts || [];
+            
+            let html = `
+                <div class="result success">
+                    <h3>✅ Sub Account List Retrieved Successfully</h3>
+                    <p><strong>Status Code:</strong> ${data.status_code}</p>
+                    <p><strong>Response Code:</strong> ${data.response_code}</p>
+                    <p><strong>Response Message:</strong> ${data.response_message}</p>
+                    <p><strong>Total Sub Accounts:</strong> ${data.sub_accounts_count}</p>
+            `;
+            
+            if (subAccounts.length > 0) {
+                html += '<div class="sub-accounts-list">';
+                html += '<h4>Sub Account Details:</h4>';
+                subAccounts.forEach(account => {
+                    html += `
+                        <div class="sub-account-item">
+                            <div class="sub-account-info">
+                                <div class="sub-account-id">${account.entity_id}</div>
+                                <div class="sub-account-name">${account.entity_name}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                html += '<p><em>No sub accounts found.</em></p>';
+            }
+            
+            html += `
+                <div class="result-details">Full Response:
+${JSON.stringify(data.full_response, null, 2)}</div>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+        
+        function showErrorResult(data) {
+            let errorMessage = 'An error occurred while retrieving sub account list';
+            
+            if (data.error_code) {
+                errorMessage = `Error Code ${data.error_code}: ${data.error_message || 'Unknown error'}`;
+            } else if (data.error) {
+                errorMessage = data.error;
+            }
+            
+            showResult('error', errorMessage, data.full_response);
+        }
+        
+        function showResult(type, message, fullResponse = null) {
+            const resultDiv = document.getElementById('result');
+            
+            let html = `
+                <div class="result ${type}">
+                    <h3>${type === 'success' ? '✅ Success' : '❌ Error'}</h3>
+                    <p>${message}</p>
+            `;
+            
+            if (fullResponse) {
+                html += `
+                    <div class="result-details">Full Response:
+${JSON.stringify(fullResponse, null, 2)}</div>
+                `;
+            }
+            
+            html += '</div>';
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 

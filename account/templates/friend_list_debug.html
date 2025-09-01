@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunmi API - Get Friend List (Debug)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Sunmi API - Get Friend List (Debug Version)</h1>
+    
+    <form id="friendListForm">
+        <div class="form-group">
+            <label for="appid">App ID:</label>
+            <input type="text" id="appid" name="appid" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="appkey">App Key:</label>
+            <input type="password" id="appkey" name="appkey" required>
+        </div>
+        
+        <button type="submit" class="btn">Get Friend List</button>
+    </form>
+    
+    <div id="debugInfo" class="debug-info" style="display: none;">
+        <h3>Debug Information:</h3>
+        <div id="debugContent"></div>
+    </div>
+    
+    <div id="result" class="result" style="display: none;"></div>
+    
+    <script>
+        document.getElementById('friendListForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const result = document.getElementById('result');
+            const debugInfo = document.getElementById('debugInfo');
+            const debugContent = document.getElementById('debugContent');
+            
+            // Get form data
+            const appid = document.getElementById('appid').value;
+            const appkey = document.getElementById('appkey').value;
+            
+            const requestData = {
+                appid: appid,
+                appkey: appkey
+            };
+            
+            // Show debug info
+            debugInfo.style.display = 'block';
+            debugContent.innerHTML = `
+                <p><strong>Request URL:</strong> /api/get_friend_list</p>
+                <p><strong>Request Method:</strong> POST</p>
+                <p><strong>Request Headers:</strong> Content-Type: application/json</p>
+                <p><strong>Request Data:</strong> ${JSON.stringify(requestData, null, 2)}</p>
+            `;
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Loading...';
+            
+            // Hide previous result
+            result.style.display = 'none';
+            
+            try {
+                console.log('Sending request:', requestData);
+                
+                const response = await fetch('/api/get_friend_list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error(`Failed to parse JSON: ${responseText}`);
+                }
+                
+                console.log('Parsed data:', data);
+                
+                // Update debug info
+                debugContent.innerHTML += `
+                    <p><strong>Response Status:</strong> ${response.status}</p>
+                    <p><strong>Response Headers:</strong> ${JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)}</p>
+                    <p><strong>Response Data:</strong> ${JSON.stringify(data, null, 2)}</p>
+                `;
+                
+                // Display result
+                result.className = data.success ? 'result success' : 'result error';
+                result.style.display = 'block';
+                
+                if (data.success) {
+                    let html = `
+                        <h3>✅ Success!</h3>
+                        <p><strong>Status Code:</strong> ${data.status_code}</p>
+                        <p><strong>Response Code:</strong> ${data.data?.code || 'N/A'}</p>
+                        <p><strong>Response Message:</strong> ${data.data?.msg || 'N/A'}</p>
+                    `;
+                    
+                    // Display friend list if available
+                    if (data.data?.data?.list && data.data.data.list.length > 0) {
+                        html += `
+                            <h4>👥 Friends (${data.data.data.list.length}):</h4>
+                            <ul>
+                        `;
+                        
+                        data.data.data.list.forEach((friend, index) => {
+                            html += `
+                                <li><strong>${index + 1}.</strong> Entity ID: ${friend.entity_id}, Name: ${friend.entity_name}</li>
+                            `;
+                        });
+                        
+                        html += '</ul>';
+                    } else {
+                        html += '<p><em>No friends found.</em></p>';
+                    }
+                    
+                    result.innerHTML = html;
+                } else {
+                    result.innerHTML = `
+                        <h3>❌ Error</h3>
+                        <p><strong>Error:</strong> ${data.error}</p>
+                        <p><strong>Status Code:</strong> ${data.status_code}</p>
+                        ${data.response ? `<p><strong>Raw Response:</strong></p><pre>${data.response}</pre>` : ''}
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                
+                result.className = 'result error';
+                result.style.display = 'block';
+                result.innerHTML = `
+                    <h3>❌ Network Error</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+                
+                // Update debug info
+                debugContent.innerHTML += `
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Get Friend List';
+            }
+        });
+    </script>
+</body>
+</html> 

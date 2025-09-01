@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunmi API Management Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .feature-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .feature-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .api-info {
+            background: #e3f2fd;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+
+        .api-info h3 {
+            color: #1976d2;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .api-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .api-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #1976d2;
+        }
+
+        .api-section h4 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .api-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .api-section li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            color: #555;
+        }
+
+        .api-section li:before {
+            content: "•";
+            color: #1976d2;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 12px;
+            height: 12px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .feature-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .api-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Sunmi API Management Tool</h1>
+            <p>Comprehensive Device Management and API Operations Platform | Official API Specifications</p>
+            <div class="status-indicator"></div>
+        </div>
+        
+        <div class="content">
+            <div class="features-grid">
+                <div class="feature-card" onclick="window.location.href='/unified_transfer'">
+                    <span class="feature-icon">🔄</span>
+                    <h3 class="feature-title">Device Transfer</h3>
+                    <p class="feature-description">
+                        Manage device transfers to friends and sub accounts with email notifications. All-in-one solution for device management.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">Friend</div>
+                            <div class="stat-label">Transfer</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">Sub Account</div>
+                            <div class="stat-label">Binding</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">Email</div>
+                            <div class="stat-label">Notifications</div>
+                        </div>
+                    </div>
+                    <button class="feature-btn">Manage Transfers</button>
+                </div>
+
+                <div class="feature-card" onclick="window.location.href='/friend_list'">
+                    <span class="feature-icon">👥</span>
+                    <h3 class="feature-title">Friend Management</h3>
+                    <p class="feature-description">
+                        Get and manage friend lists. View partner information, manage device sharing relationships, support SUNMI Remote functionality.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">List</div>
+                            <div class="stat-label">View</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">Remote</div>
+                            <div class="stat-label">Support</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">Real-time</div>
+                            <div class="stat-label">Updates</div>
+                        </div>
+                    </div>
+                    <button class="feature-btn">View Friends</button>
+                </div>
+
+                <div class="feature-card" onclick="window.location.href='/bind_sub_account'">
+                    <span class="feature-icon">🔗</span>
+                    <h3 class="feature-title">Sub-Account Binding</h3>
+                    <p class="feature-description">
+                        Bind devices to sub-accounts. Supports batch binding operations, automatic sub-account permission validation, ensuring compliant device management.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">Batch</div>
+                            <div class="stat-label">Binding</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">Permission</div>
+                            <div class="stat-label">Validation</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">3000</div>
+                            <div class="stat-label">Limit</div>
+                        </div>
+                    </div>
+                    <button class="feature-btn">Bind Devices</button>
+                </div>
+
+
+
+                <div class="feature-card" onclick="window.location.href='/mail_config'">
+                    <span class="feature-icon">⚙️</span>
+                    <h3 class="feature-title">Email Configuration</h3>
+                    <p class="feature-description">
+                        Configure and manage email settings for notifications. Support for Gmail, Outlook, QQ Mail, 163 Mail, and custom SMTP servers.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">Multiple</div>
+                            <div class="stat-label">Providers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">Test</div>
+                            <div class="stat-label">Connection</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">Secure</div>
+                            <div class="stat-label">Setup</div>
+                        </div>
+                    </div>
+                    <button class="feature-btn">Configure Email</button>
+                </div>
+            </div>
+
+            <div class="api-info">
+                <h3>📋 API Feature Overview</h3>
+                <div class="api-info-grid">
+                    <div class="api-section">
+                        <h4>🔗 Core Features</h4>
+                        <ul>
+                            <li>Friend List Retrieval</li>
+                            <li>Sub-Account Device Binding</li>
+                            <li>Real-time Entity Validation</li>
+                        </ul>
+                    </div>
+                    <div class="api-section">
+                        <h4>🔐 Security Features</h4>
+                        <ul>
+                            <li>HMAC-SHA256 Signing</li>
+                            <li>Parameter Format Validation</li>
+                            <li>Timestamp Anti-replay</li>
+                            <li>Random Number Generation</li>
+                        </ul>
+                    </div>
+                    <div class="api-section">
+                        <h4>⚠️ Error Handling</h4>
+                        <ul>
+                            <li>Signature Validation Error (40000)</li>
+                            <li>Server Error (13010001)</li>
+                            <li>Parameter Error (13010002)</li>
+                            <li>Device-related Errors</li>
+                        </ul>
+                    </div>
+                    <div class="api-section">
+                        <h4>🛠️ Development Tools</h4>
+                        <ul>
+                            <li>Signature Debug Tool</li>
+                            <li>Error Code Reference</li>
+                            <li>Real-time Validation</li>
+                            <li>Best Practices Guide</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add click effects
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+
+        // Add keyboard navigation support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const focusedElement = document.activeElement;
+                if (focusedElement.classList.contains('feature-card')) {
+                    focusedElement.click();
+                }
+            }
+        });
+
+        // Load mail configuration status
+        window.addEventListener('load', function() {
+            loadMailConfigStatus();
+        });
+
+        // Load and display mail configuration status
+        function loadMailConfigStatus() {
+            fetch('/api/get_current_mail_config')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const mailConfig = data.mail_config;
+                        // You can add mail config status display here if needed
+                        console.log('Current mail config:', mailConfig);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading mail config:', error);
+                });
+        }
+    </script>
+</body>
+</html> 

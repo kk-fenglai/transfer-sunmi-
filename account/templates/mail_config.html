@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Configuration Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2196f3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .config-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .config-section h3 {
+            color: #333;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .config-section h3::before {
+            content: "📧";
+            margin-right: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .btn:hover {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+        }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #f57c00 0%, #ef6c00 100%);
+        }
+        .current-config {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .current-config h4 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+        .note h4 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .test-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .test-result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .test-result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Email Configuration Management</h1>
+        
+        <div class="note">
+            <h4>⚠️ Important Notice</h4>
+            <p>Please ensure your email has SMTP service enabled and you have obtained the correct authorization code or app-specific password.</p>
+            <p>After configuration, the system will use your configured email to send notification emails.</p>
+        </div>
+
+        <div class="current-config">
+            <h4>🔍 Current Configuration Status</h4>
+            <div class="form-group">
+                <label for="currentConfigSelect"><strong>Currently Using:</strong></label>
+                <select id="currentConfigSelect" onchange="switchCurrentConfig()">
+                    <option value="gmail">Gmail</option>
+                    <option value="outlook">Outlook/Hotmail</option>
+                    <option value="qq">QQ Mail</option>
+                    <option value="163">163 Mail</option>
+                    <option value="custom">Custom SMTP</option>
+                </select>
+                <button type="button" class="btn btn-warning" onclick="resetMailConfig()" style="margin-top: 10px;">🔄 Reset to Gmail</button>
+            </div>
+            <p><strong>Provider:</strong> <span id="currentProvider">Loading...</span></p>
+            <p><strong>Sender Email:</strong> <span id="currentEmail">Loading...</span></p>
+            <p><strong>SMTP Server:</strong> <span id="currentServer">Loading...</span></p>
+            <p><strong>Port:</strong> <span id="currentPort">Loading...</span></p>
+        </div>
+
+        <div class="config-section" data-provider="gmail">
+            <h3>Gmail Configuration</h3>
+            <form id="gmailForm">
+                <div class="form-group">
+                    <label for="gmailEmail">Email Address</label>
+                    <input type="email" id="gmailEmail" name="email" placeholder="your-email@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="gmailPassword">App-Specific Password</label>
+                    <input type="password" id="gmailPassword" name="password" placeholder="16-digit app-specific password" required>
+                    <small style="color: #666;">Note: You need to use an app-specific password, not your regular password</small>
+                </div>
+                <button type="submit" class="btn btn-success">✅ Apply Gmail Configuration</button>
+                <button type="button" class="btn" onclick="testEmail('gmail')">🧪 Test Gmail Connection</button>
+            </form>
+        </div>
+
+        <div class="config-section" data-provider="outlook">
+            <h3>Outlook/Hotmail Configuration</h3>
+            <form id="outlookForm">
+                <div class="form-group">
+                    <label for="outlookEmail">Email Address</label>
+                    <input type="email" id="outlookEmail" name="email" placeholder="your-email@outlook.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="outlookPassword">Email Password</label>
+                    <input type="password" id="outlookPassword" name="password" placeholder="Email password" required>
+                </div>
+                <button type="submit" class="btn btn-success">✅ Apply Outlook Configuration</button>
+                <button type="button" class="btn" onclick="testEmail('outlook')">🧪 Test Outlook Connection</button>
+            </form>
+        </div>
+
+        <div class="config-section" data-provider="qq">
+            <h3>QQ Mail Configuration</h3>
+            <form id="qqForm">
+                <div class="form-group">
+                    <label for="qqEmail">Email Address</label>
+                    <input type="email" id="qqEmail" name="email" placeholder="your-qq@qq.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="qqPassword">Authorization Code</label>
+                    <input type="password" id="qqPassword" name="password" placeholder="16-digit authorization code" required>
+                    <small style="color: #666;">You need to enable SMTP service in QQ Mail settings and obtain an authorization code</small>
+                </div>
+                <button type="submit" class="btn btn-success">✅ Apply QQ Mail Configuration</button>
+                <button type="button" class="btn" onclick="testEmail('qq')">🧪 Test QQ Mail Connection</button>
+            </form>
+        </div>
+
+        <div class="config-section" data-provider="163">
+            <h3>163 Mail Configuration</h3>
+            <form id="mail163Form">
+                <div class="form-group">
+                    <label for="mail163Email">Email Address</label>
+                    <input type="email" id="mail163Email" name="email" placeholder="your-email@163.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="mail163Password">Authorization Code</label>
+                    <input type="password" id="mail163Password" name="password" placeholder="16-digit authorization code" required>
+                    <small style="color: #666;">You need to enable SMTP service in 163 Mail settings and obtain an authorization code</small>
+                </div>
+                <button type="submit" class="btn btn-success">✅ Apply 163 Mail Configuration</button>
+                <button type="button" class="btn" onclick="testEmail('163')">🧪 Test 163 Mail Connection</button>
+            </form>
+        </div>
+
+        <div class="config-section" data-provider="custom">
+            <h3>Custom SMTP Configuration</h3>
+            <form id="customForm">
+                <div class="form-group">
+                    <label for="customServer">SMTP Server</label>
+                    <input type="text" id="customServer" name="server" placeholder="smtp.example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="customPort">Port</label>
+                    <input type="text" id="customPort" name="port" placeholder="587" required>
+                </div>
+                <div class="form-group">
+                    <label for="customEmail">Email Address</label>
+                    <input type="email" id="customEmail" name="email" placeholder="your-email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="customPassword">Password/Authorization Code</label>
+                    <input type="password" id="customPassword" name="password" placeholder="Password or authorization code" required>
+                </div>
+                <div class="form-group">
+                    <label for="customTLS">Use TLS</label>
+                    <select id="customTLS" name="tls">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">✅ Apply Custom Configuration</button>
+                <button type="button" class="btn" onclick="testEmail('custom')">🧪 Test Custom Connection</button>
+            </form>
+        </div>
+
+        <div class="test-result" id="testResult"></div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn btn-warning">🔙 Back to Home</a>
+            <a href="/friend_list" class="btn">👥 Friend List</a>
+            
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时获取当前配置
+        window.addEventListener('load', function() {
+            loadCurrentConfig();
+        });
+
+        // 加载当前配置
+        function loadCurrentConfig() {
+            fetch('/api/mail_config')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 设置选择器的当前值
+                        document.getElementById('currentConfigSelect').value = data.provider;
+                        document.getElementById('currentEmail').textContent = data.email;
+                        document.getElementById('currentServer').textContent = data.server;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading config:', error);
+                });
+        }
+
+        // 切换当前使用的配置
+        function switchCurrentConfig() {
+            const provider = document.getElementById('currentConfigSelect').value;
+            
+            fetch('/api/switch_mail_config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    provider: provider
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`✅ Switched to ${provider} configuration!`);
+                    loadCurrentConfig(); // 重新加载配置信息
+                } else {
+                    alert(`❌ Failed to switch configuration: ${data.error}`);
+                    // 恢复之前的选择
+                    loadCurrentConfig();
+                }
+            })
+            .catch(error => {
+                alert(`❌ Network error: ${error.message}`);
+                // 恢复之前的选择
+                loadCurrentConfig();
+            });
+        }
+
+        // 应用配置
+        function applyConfig(provider, formData) {
+            fetch('/api/apply_mail_config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    provider: provider,
+                    config: formData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`✅ ${provider} configuration applied successfully!`);
+                    loadCurrentConfig();
+                } else {
+                    alert(`❌ Failed to apply configuration: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                alert(`❌ Network error: ${error.message}`);
+            });
+        }
+
+        // 测试邮箱连接
+        function testEmail(provider) {
+            const testResult = document.getElementById('testResult');
+            testResult.style.display = 'block';
+            testResult.className = 'test-result';
+            testResult.innerHTML = '<p>🧪 Testing email connection, please wait...</p>';
+
+            fetch('/api/test_mail_config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    provider: provider
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    testResult.className = 'test-result success';
+                    testResult.innerHTML = `
+                        <h4>✅ Connection Test Successful</h4>
+                        <p>${provider} email configuration is correct and can send emails normally.</p>
+                    `;
+                } else {
+                    testResult.className = 'test-result error';
+                    testResult.innerHTML = `
+                        <h4>❌ Connection Test Failed</h4>
+                        <p><strong>Error Message:</strong> ${data.error}</p>
+                        <p>Please check if your email configuration is correct.</p>
+                    `;
+                }
+            })
+            .catch(error => {
+                testResult.className = 'test-result error';
+                testResult.innerHTML = `
+                    <h4>❌ Network Error</h4>
+                    <p>${error.message}</p>
+                `;
+            });
+        }
+
+        // 加载当前配置
+        function loadCurrentConfig() {
+            fetch('/api/get_current_mail_config')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 更新当前提供者选择
+                        document.getElementById('currentConfigSelect').value = data.provider;
+                        
+                        // 更新配置信息显示
+                        document.getElementById('currentProvider').textContent = data.provider.toUpperCase();
+                        document.getElementById('currentEmail').textContent = data.mail_config.MAIL_USERNAME;
+                        document.getElementById('currentServer').textContent = data.mail_config.MAIL_SERVER;
+                        document.getElementById('currentPort').textContent = data.mail_config.MAIL_PORT;
+                        
+                        // 高亮当前配置
+                        highlightCurrentConfig(data.provider);
+                    } else {
+                        console.error('Failed to load current config:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading current config:', error);
+                });
+        }
+
+        // 高亮当前配置
+        function highlightCurrentConfig(provider) {
+            // 移除所有高亮
+            document.querySelectorAll('.config-section').forEach(section => {
+                section.style.border = '1px solid #e0e0e0';
+                section.style.background = '#fafafa';
+            });
+            
+            // 高亮当前配置
+            const currentSection = document.querySelector(`[data-provider="${provider}"]`);
+            if (currentSection) {
+                currentSection.style.border = '2px solid #4caf50';
+                currentSection.style.background = '#e8f5e8';
+            }
+        }
+
+        // 重置邮件配置
+        function resetMailConfig() {
+            if (confirm('Are you sure you want to reset the mail configuration to Gmail? This will clear all other configurations.')) {
+                fetch('/api/reset_mail_config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Mail configuration reset to Gmail successfully!');
+                        loadCurrentConfig(); // 重新加载配置
+                    } else {
+                        alert(`❌ Failed to reset configuration: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    alert(`❌ Network error: ${error.message}`);
+                });
+            }
+        }
+
+        // 页面加载时加载当前配置
+        window.addEventListener('load', function() {
+            loadCurrentConfig();
+        });
+
+        // 表单提交事件
+        document.getElementById('gmailForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const config = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+            applyConfig('gmail', config);
+        });
+
+        document.getElementById('outlookForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const config = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+            applyConfig('outlook', config);
+        });
+
+        document.getElementById('qqForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const config = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+            applyConfig('qq', config);
+        });
+
+        document.getElementById('mail163Form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const config = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+            applyConfig('163', config);
+        });
+
+        document.getElementById('customForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const config = {
+                server: formData.get('server'),
+                port: formData.get('port'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                tls: formData.get('tls') === 'true'
+            };
+            applyConfig('custom', config);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunmi API - Bind Devices to Sub Account</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result h3 {
+            margin-bottom: 15px;
+        }
+
+        .result pre {
+            background: rgba(0,0,0,0.1);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .example {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .example h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .api-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .api-info h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 0 5px;
+            display: inline-block;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tab-container {
+            margin-bottom: 30px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .sub-accounts-list {
+            margin-top: 20px;
+        }
+
+        .sub-account-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sub-account-info {
+            flex: 1;
+        }
+
+        .sub-account-id {
+            font-weight: 600;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .sub-account-name {
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Sunmi API - Sub Account Management</h1>
+            <p>Bind devices to sub accounts and view sub account list</p>
+            <div class="nav-links">
+                <a href="/">🏠 Main Page</a>
+                <a href="/unified_transfer">🔄 Device Transfer</a>
+                <a href="/friend_list">👥 Friend List</a>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Tab Navigation -->
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="switchTab('bind')">🔗 Bind Devices</button>
+                    <button class="tab-button" onclick="switchTab('list')">📋 Sub Account List</button>
+                </div>
+            </div>
+
+            <!-- Bind Devices Tab -->
+            <div id="bind" class="tab-content active">
+                <form id="bindSubAccountForm">
+                <div class="form-group">
+                    <label for="appid">App ID *</label>
+                    <input type="text" id="appid" name="appid" placeholder="Enter your App ID" required>
+                    <div class="help-text">32-character application ID from Sunmi Partner Platform</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="appkey">App Key *</label>
+                    <input type="password" id="appkey" name="appkey" placeholder="Enter your App Key" required>
+                    <div class="help-text">Application secret key from Sunmi Partner Platform</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sn_list">Device Serial Number List *</label>
+                    <textarea id="sn_list" name="sn_list" placeholder="Enter device serial numbers, one per line" required></textarea>
+                    <div class="help-text">Enter one device serial number per line</div>
+                    <div class="example">
+                        <h4>Example format:</h4>
+                        <pre>P7B0000999976
+P7B0000999977
+P7B0000999978</pre>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="entity_id">Sub Account Entity ID *</label>
+                    <input type="text" id="entity_id" name="entity_id" placeholder="Enter sub account entity ID" required>
+                    <div class="help-text">The entity ID of the sub account to bind devices to</div>
+                    <div class="example">
+                        <h4>⚠️ Important Notes:</h4>
+                        <ul style="margin-left: 20px; color: #d63384;">
+                            <li>The sub account must exist and be valid</li>
+                            <li>The sub account must have device management permissions</li>
+                            <li>Devices must not be frozen or already bound to another account</li>
+                            <li>Maximum 3000 devices can be bound per operation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    🔗 Bind Devices to Sub Account
+                </button>
+                </form>
+            </div>
+
+            <!-- Sub Account List Tab -->
+            <div id="list" class="tab-content">
+                <form id="subAccountListForm">
+                    <div class="form-group">
+                        <label for="listAppid">App ID *</label>
+                        <input type="text" id="listAppid" name="listAppid" placeholder="Enter your App ID" required>
+                        <div class="help-text">32-character application ID from Sunmi Partner Platform</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="listAppkey">App Key *</label>
+                        <input type="password" id="listAppkey" name="listAppkey" placeholder="Enter your App Key" required>
+                        <div class="help-text">Application secret key from Sunmi Partner Platform</div>
+                    </div>
+
+                    <button type="submit" class="btn" id="listSubmitBtn">
+                        📋 Get Sub Account List
+                    </button>
+                </form>
+
+                <div id="listLoading" class="loading" style="display: none;">
+                    Retrieving sub account list...
+                </div>
+
+                <div id="listResult" class="result"></div>
+            </div>
+
+            <div class="api-info">
+                <h3>📋 API Information</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4 style="color: #333; margin-bottom: 10px;">🔗 API Endpoint</h4>
+                        <p><strong>URL:</strong> <code>https://openapi.sunmi.com/v2/mdm/open/open/deviceCenter/subAccount/device/bound</code></p>
+                        <p><strong>Method:</strong> POST</p>
+                        <p><strong>Function:</strong> Bind devices to sub account</p>
+                    </div>
+                    <div>
+                        <h4 style="color: #333; margin-bottom: 10px;">⚠️ Error Codes</h4>
+                        <ul style="font-size: 0.9em; line-height: 1.6;">
+                            <li><strong>10105001:</strong> Device not found</li>
+                            <li><strong>10105008:</strong> Sub account not found</li>
+                            <li><strong>10105004:</strong> Device freeze</li>
+                            <li><strong>10105006:</strong> Device give num exceed 3000</li>
+                            <li><strong>13010001:</strong> Server error</li>
+                            <li><strong>13010002:</strong> Parameter error</li>
+                            <li><strong>30001:</strong> Cannot get ability - SUNMI Remote capability not enabled</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 8px;">
+                    <h4 style="color: #856404; margin-bottom: 10px;">⚠️ Important Notes:</h4>
+                    <ul style="margin-left: 20px; color: #856404;">
+                        <li>You need to complete the process of accessing developer capabilities</li>
+                        <li>The application must be created and associated with the SUNMI Remote capability</li>
+                        <li>This API requires the same authentication as other Sunmi APIs</li>
+                        <li>Devices will be bound to the specified sub account entity</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Binding devices to sub account, please wait...</p>
+            </div>
+
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Bind Sub Account Form
+        document.getElementById('bindSubAccountForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            
+            // Get form data
+            const formData = new FormData(this);
+            const snListText = formData.get('sn_list');
+            
+            // Process device serial number list
+            const sn_list = snListText.split('\n')
+                .map(sn => sn.trim())
+                .filter(sn => sn.length > 0);
+            
+            const requestData = {
+                appid: formData.get('appid'),
+                appkey: formData.get('appkey'),
+                sn_list: sn_list,
+                entity_id: formData.get('entity_id')
+            };
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/bind_sub_account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                
+                // Display result
+                result.className = data.success ? 'result success' : 'result error';
+                result.style.display = 'block';
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <h3>✅ Devices Successfully Bound to Sub Account</h3>
+                        <p><strong>Status Code:</strong> ${data.status_code}</p>
+                        <p><strong>Response Code:</strong> ${data.data?.code || 'N/A'}</p>
+                        <p><strong>Response Message:</strong> ${data.data?.msg || 'N/A'}</p>
+                        <p><strong>Devices Bound:</strong> ${sn_list.length} device(s)</p>
+                        <p><strong>Sub Account Entity ID:</strong> ${requestData.entity_id}</p>
+                        <p><strong>Full Response:</strong></p>
+                        <pre>${JSON.stringify(data.data || JSON.parse(data.response), null, 2)}</pre>
+                    `;
+                } else {
+                    let errorDetails = `
+                        <h3>❌ Failed to Bind Devices to Sub Account</h3>
+                        <p><strong>Error:</strong> ${data.error}</p>
+                        <p><strong>Status Code:</strong> ${data.status_code}</p>
+                    `;
+                    
+                    // Provide specific help for common errors
+                    if (data.error && data.error.includes('10105008')) {
+                        errorDetails += `
+                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <h4>🔧 Solution for Error 10105008 (Sub account not found):</h4>
+                            <ul style="margin-left: 20px;">
+                                <li>Verify the sub account entity ID is correct</li>
+                                <li>Ensure the sub account exists and is active</li>
+                                <li>Check if the sub account has proper permissions</li>
+                                <li>Confirm the entity ID format is valid</li>
+                            </ul>
+                        </div>`;
+                    } else if (data.error && data.error.includes('10105001')) {
+                        errorDetails += `
+                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <h4>🔧 Solution for Error 10105001 (Device not found):</h4>
+                            <ul style="margin-left: 20px;">
+                                <li>Verify all device serial numbers are correct</li>
+                                <li>Ensure devices exist in your account</li>
+                                <li>Check if devices are already bound to another account</li>
+                                <li>Confirm devices are not frozen or inactive</li>
+                            </ul>
+                        </div>`;
+                    } else if (data.error && data.error.includes('10105004')) {
+                        errorDetails += `
+                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <h4>🔧 Solution for Error 10105004 (Device freeze):</h4>
+                            <ul style="margin-left: 20px;">
+                                <li>Some devices are frozen and cannot be bound</li>
+                                <li>Contact Sunmi support to unfreeze devices</li>
+                                <li>Remove frozen devices from the list and try again</li>
+                            </ul>
+                        </div>`;
+                    } else if (data.error && data.error.includes('10105006')) {
+                        errorDetails += `
+                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <h4>🔧 Solution for Error 10105006 (Device give num exceed 3000):</h4>
+                            <ul style="margin-left: 20px;">
+                                <li>Maximum 3000 devices can be bound in one operation</li>
+                                <li>Split your device list into smaller batches</li>
+                                <li>Process devices in groups of 3000 or fewer</li>
+                            </ul>
+                        </div>`;
+                    }
+                    
+                    errorDetails += `${data.response ? `<p><strong>Raw Response:</strong></p><pre>${data.response}</pre>` : ''}`;
+                    result.innerHTML = errorDetails;
+                }
+                
+            } catch (error) {
+                result.className = 'result error';
+                result.style.display = 'block';
+                result.innerHTML = `
+                    <h3>❌ Network Error</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        // Sub Account List Form
+        document.getElementById('subAccountListForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('listSubmitBtn');
+            const loading = document.getElementById('listLoading');
+            const result = document.getElementById('listResult');
+            
+            // Get form data
+            const appId = document.getElementById('listAppid').value.trim();
+            const appKey = document.getElementById('listAppkey').value.trim();
+            
+            // Validate required fields
+            if (!appId || !appKey) {
+                showListResult('error', 'Please fill in all required fields');
+                return;
+            }
+            
+            // Show loading
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/get_sub_account_list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        app_id: appId,
+                        app_key: appKey
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showListSuccessResult(data);
+                } else {
+                    showListErrorResult(data);
+                }
+            } catch (error) {
+                showListResult('error', `Network error: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+        
+        function showListSuccessResult(data) {
+            const resultDiv = document.getElementById('listResult');
+            const subAccounts = data.sub_accounts || [];
+            
+            let html = `
+                <div class="result success">
+                    <h3>✅ Sub Account List Retrieved Successfully</h3>
+                    <p><strong>Status Code:</strong> ${data.status_code}</p>
+                    <p><strong>Response Code:</strong> ${data.response_code}</p>
+                    <p><strong>Response Message:</strong> ${data.response_message}</p>
+                    <p><strong>Total Sub Accounts:</strong> ${data.sub_accounts_count}</p>
+            `;
+            
+            if (subAccounts.length > 0) {
+                html += '<div class="sub-accounts-list">';
+                html += '<h4>Sub Account Details:</h4>';
+                subAccounts.forEach(account => {
+                    html += `
+                        <div class="sub-account-item">
+                            <div class="sub-account-info">
+                                <div class="sub-account-id">${account.entity_id}</div>
+                                <div class="sub-account-name">${account.entity_name}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                html += '<p><em>No sub accounts found.</em></p>';
+            }
+            
+            html += `
+                <div class="result-details">Full Response:
+${JSON.stringify(data.full_response, null, 2)}</div>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+        
+        function showListErrorResult(data) {
+            let errorMessage = 'An error occurred while retrieving sub account list';
+            
+            if (data.error_code) {
+                errorMessage = `Error Code ${data.error_code}: ${data.error_message || 'Unknown error'}`;
+            } else if (data.error) {
+                errorMessage = data.error;
+            }
+            
+            showListResult('error', errorMessage, data.full_response);
+        }
+        
+        function showListResult(type, message, fullResponse = null) {
+            const resultDiv = document.getElementById('listResult');
+            
+            let html = `
+                <div class="result ${type}">
+                    <h3>${type === 'success' ? '✅ Success' : '❌ Error'}</h3>
+                    <p>${message}</p>
+            `;
+            
+            if (fullResponse) {
+                html += `
+                    <div class="result-details">Full Response:
+${JSON.stringify(fullResponse, null, 2)}</div>
+                `;
+            }
+            
+            html += '</div>';
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 
