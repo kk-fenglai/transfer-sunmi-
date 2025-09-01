@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input { width: 300px; padding: 8px; }
+        .btn { background: #007bff; color: white; border: none; padding: 10px 20px; cursor: pointer; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Simple API Test</h1>
+    
+    <form id="testForm">
+        <div class="form-group">
+            <label for="appid">App ID:</label>
+            <input type="text" id="appid" name="appid" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="appkey">App Key:</label>
+            <input type="password" id="appkey" name="appkey" required>
+        </div>
+        
+        <button type="submit" class="btn">Test API</button>
+    </form>
+    
+    <div id="result" class="result" style="display: none;"></div>
+    
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const appid = document.getElementById('appid').value;
+            const appkey = document.getElementById('appkey').value;
+            
+            const requestData = {
+                appid: appid,
+                appkey: appkey
+            };
+            
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.innerHTML = 'Testing...';
+            
+            try {
+                console.log('Sending request:', requestData);
+                
+                const response = await fetch('/api/get_friend_list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error(`Failed to parse JSON: ${responseText}`);
+                }
+                
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <h3>✅ Success!</h3>
+                        <p><strong>Status Code:</strong> ${data.status_code}</p>
+                        <p><strong>Response:</strong> ${JSON.stringify(data, null, 2)}</p>
+                    `;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `
+                        <h3>❌ Error</h3>
+                        <p><strong>Error:</strong> ${data.error}</p>
+                        <p><strong>Status Code:</strong> ${data.status_code}</p>
+                        <p><strong>Response:</strong> ${JSON.stringify(data, null, 2)}</p>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                result.className = 'result error';
+                result.innerHTML = `
+                    <h3>❌ Network Error</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html> 
