@@ -15,6 +15,7 @@
 - 🔐 全面的签名验证工具
 - 📊 详细的签名分析报告
 - 📧 自动邮件通知功能（设备转绑成功）
+- 🔧 **最新修复**: 设备转移API端点已更新为官方标准
 
 ## 安装和运行
 
@@ -119,7 +120,36 @@ account/
 - **方法**: POST
 - **功能**: 将设备绑定到子账户
 
+#### 设备转移到好友
+- **URL**: `deviceCenter/bind/transfer`
+- **方法**: POST
+- **功能**: 将设备转移到好友账户
+
 #### 实体验证
 - **URL**: `entity/info`
 - **方法**: POST
-- **功能**: 验证目标实体是否存在且有效 
+- **功能**: 验证目标实体是否存在且有效
+
+## 更新日志
+
+### 最新修复 (2024)
+
+#### API端点修复
+- ✅ **修复设备转移API端点**: 从 `deviceCenter/device/transfer` 更新为 `deviceCenter/bind/transfer`
+- ✅ **UI界面修复**: 更新了所有模板文件中的API端点显示
+- ✅ **导航链接修复**: 移除了无效的 `/sign_test` 链接，更新为正确的页面跳转
+- ✅ **API文档同步**: 确保所有显示的API端点与官方Sunmi API文档完全一致
+
+#### 修复详情
+- **影响文件**: 
+  - `app.py` - 后端API调用端点
+  - `templates/unified_transfer.html` - 设备转移页面
+  - `templates/bind_sub_account.html` - 子账户绑定页面
+  - `templates/friend_list.html` - 好友列表页面
+  - `templates/sub_account_list.html` - 子账户列表页面
+
+- **修复内容**:
+  - 设备转移API端点现在使用正确的官方端点
+  - 所有UI页面显示的API信息已更新
+  - 导航链接现在指向正确的功能页面
+  - 确保与Sunmi官方API文档100%一致
